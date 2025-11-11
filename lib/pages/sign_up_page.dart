@@ -1,35 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'home_page.dart';
+import 'home_page.dart'; 
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class SignUpPage extends StatefulWidget {
+  const SignUpPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<SignUpPage> createState() => _SignUpPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _SignUpPageState extends State<SignUpPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _auth = FirebaseAuth.instance;
   bool _obscurePassword = true;
 
-  void _login() async {
+  void _register() async {
     try {
-      await _auth.signInWithEmailAndPassword(
+      await _auth.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
 
       if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Registrasi berhasil!')),
+      );
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const HomePage()),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login gagal: $e')),
+        SnackBar(content: Text('Registrasi gagal: $e')),
       );
     }
   }
@@ -37,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFCDECC2), // warna hijau muda
+      backgroundColor: const Color(0xFFCDECC2), // hijau muda
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -60,9 +64,8 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 20),
 
-              // Nama Aplikasi
               const Text(
-                "Smart Farm",
+                "Create Account",
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -71,7 +74,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 30),
 
-              // Username (Email)
+              // Email
               TextField(
                 controller: _emailController,
                 decoration: InputDecoration(
@@ -117,14 +120,15 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
+
               const SizedBox(height: 20),
 
-              // Tombol Login
+              // Tombol Register
               SizedBox(
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: _login,
+                  onPressed: _register,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF4CAF50),
                     shape: RoundedRectangleBorder(
@@ -132,7 +136,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   child: const Text(
-                    'Login',
+                    'Register',
                     style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ),
@@ -140,37 +144,21 @@ class _LoginPageState extends State<LoginPage> {
 
               const SizedBox(height: 12),
 
-              // Forgot Password
-              TextButton(
-                onPressed: () {
-                  // nanti bisa diarahkan ke halaman lupa password
-                },
-                child: const Text(
-                  'Forgot Password ?',
-                  style: TextStyle(color: Colors.black87),
-                ),
-              ),
-
-              const SizedBox(height: 8),
-
-              // Sign Up
+              // Kembali ke login
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text("New here? "),
+                  const Text("Already have an account? "),
                   GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const SignUpPage()),
-                      );
+                      Navigator.pop(context); // kembali ke LoginPage
                     },
                     child: const Text(
-                      "Sign Up",
+                      "Login",
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.underline, // opsional agar terlihat bisa diklik
+                        decoration: TextDecoration.underline,
                       ),
                     ),
                   ),
