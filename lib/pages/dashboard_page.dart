@@ -1,0 +1,135 @@
+import 'package:flutter/material.dart';
+import '../controllers/dashboard_controller.dart';
+
+class DashboardPage extends StatefulWidget {
+  const DashboardPage({super.key});
+
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  final DashboardController controller = DashboardController();
+  Map<String, dynamic>? data;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // 1. Bersihkan data lama ke history saat login
+    controller.moveOldDataToHistory(DateTime.now());
+
+    // 2. Stream realtime untuk UI
+    controller.getLastSensorData().listen((newData) {
+      if (newData != null) {
+        setState(() => data = newData);
+
+        // 3. Simpan ke history per sensor jika threshold tercapai
+        controller.saveIfChanged(newData);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Dashboard Smart Farm')),
+      drawer: buildDrawer(context),
+      body: data == null
+          ? const Center(child: CircularProgressIndicator())
+          : buildDashboard(context),
+    );
+  }
+
+  Widget buildSensorCard(String title, String value, IconData icon) {
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Icon(icon, size: 32, color: Colors.green),
+            const SizedBox(width: 16),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(value, style: const TextStyle(fontSize: 18)),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildDashboard(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          buildSensorCard("pH", "${data!['ph']}", Icons.science),
+          buildSensorCard("TDS (ppm)", "${data!['tds_ppm']}", Icons.water_drop),
+          buildSensorCard(
+            "EC (mS/cm)",
+            "${data!['ec_ms_cm']}",
+            Icons.electrical_services,
+          ),
+          buildSensorCard("Suhu (°C)", "${data!['temp_c']}", Icons.thermostat),
+
+          const SizedBox(height: 16),
+          Text(
+            "Terakhir update: ${data!['timestamp_iso'] ?? '-'}",
+            style: const TextStyle(fontSize: 14, color: Colors.grey),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildDrawer(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: const EdgeInsets.all(0),
+        children: [
+          const DrawerHeader(
+            decoration: BoxDecoration(color: Colors.green),
+            child: Text(
+              "Menu",
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings),
+            title: const Text("Config"),
+            onTap: () => Navigator.pushNamed(context, "/config"),
+          ),
+          ListTile(
+            leading: const Icon(Icons.history),
+            title: const Text("History"),
+            onTap: () => Navigator.pushNamed(context, "/history"),
+          ),
+          ListTile(
+            leading: const Icon(Icons.notifications),
+            title: const Text("Pemberitahuan"),
+            onTap: () => Navigator.pushNamed(context, "/notif"),
+          ),
+          ListTile(
+            leading: const Icon(Icons.exit_to_app),
+            title: const Text("Keluar Aplikasi"),
+            onTap: () => Future.delayed(const Duration(milliseconds: 300), () {
+              Navigator.pop(context);
+            }),
+          ),
+        ],
+      ),
+    );
+  }
+}

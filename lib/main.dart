@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:smart_farm_bayam/pages/dashboard_page.dart';
+import 'package:smart_farm_bayam/pages/config_page.dart';
 import 'package:smart_farm_bayam/pages/login_page.dart';
+import 'package:smart_farm_bayam/pages/sign_up_page.dart';
+import 'package:smart_farm_bayam/pages/history_page.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -20,7 +24,18 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Smart Farm App',
       theme: ThemeData(primarySwatch: Colors.green),
-      home: const LoginPage(),
+
+      initialRoute: "/dashboard",
+
+      routes: {
+        "/login": (context) => const LoginPage(),
+        "/dashboard": (context) => const DashboardPage(),
+        "/config": (context) => const ConfigPage(),
+        // nanti tinggal tambah:
+        "/history": (context) => const HistoryPage(),
+        // "/notif": (context)  => const NotificationPage(),
+      },
     );
   }
+  
 }

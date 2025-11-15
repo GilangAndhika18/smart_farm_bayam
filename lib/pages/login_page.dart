@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'home_page.dart';
+import 'dashboard_page.dart';
 import 'sign_up_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -26,7 +26,7 @@ class _LoginPageState extends State<LoginPage> {
       if (!mounted) return;
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomePage()),
+        MaterialPageRoute(builder: (context) => const DashboardPage()),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
