@@ -131,54 +131,179 @@ class _HistoryPageState extends State<HistoryPage> {
     return Table(border: TableBorder.all(), children: rows);
   }
 
+  Widget buildPillField(String label, String key) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 14)),
+        const SizedBox(height: 6),
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFE8FFF4),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: TextField(
+            controller: TextEditingController(
+              text: thresholds[key]?.toString() ?? "",
+            ),
+            keyboardType: TextInputType.number,
+            onChanged: (v) {
+              final parsed = double.tryParse(v);
+              if (parsed != null) thresholds[key] = parsed;
+            },
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              hintText: "Input...",
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+      ],
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("History Smart Farm")),
+      backgroundColor: const Color(0xFFE8FFF4), // background hijau soft
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: const Text("History", style: TextStyle(color: Colors.black87)),
+        centerTitle: true,
+      ),
       body: loading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                const Text(
-                  "Setting Threshold",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
-                buildThresholdField('ph'),
-                buildThresholdField('tds_ppm'),
-                buildThresholdField('ec_ms_cm'),
-                buildThresholdField('temp_c'),
-                ElevatedButton(
-                  onPressed: _saveThresholds,
-                  child: const Text("Simpan Threshold"),
-                ),
-                const SizedBox(height: 24),
-                const Text(
-                  "Trend Chart",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
-                ...historyData.entries.map(
-                  (e) => Column(
+                // ==========================
+                //   CARD SETTING THRESHOLD
+                // ==========================
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        blurRadius: 10,
+                        color: Colors.black.withOpacity(0.05),
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        e.key.toUpperCase(),
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      Row(
+                        children: const [
+                          Text(
+                            "Setting Threshold",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(width: 6),
+                        ],
                       ),
-                      buildChart(e.key, e.value),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 20),
+
+                      buildPillField("pH", 'ph'),
+                      buildPillField("TDS (PPM)", 'tds_ppm'),
+                      buildPillField("EC (MS/CM)", 'ec_ms_cm'),
+                      buildPillField("Temperature (°C)", 'temp_c'),
+
+                      const SizedBox(height: 20),
+
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.teal.shade400,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          onPressed: _saveThresholds,
+                          child: const Text(
+                            "Simpan Threshold",
+                            style: TextStyle(color: Colors.white),  
+                          ),
+                        ),
+                      )
                     ],
                   ),
                 ),
+
                 const SizedBox(height: 24),
-                const Text(
-                  "Data Table",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+
+                // ==================================
+                //        CHART CARD SECTION
+                // ==================================
+                ...historyData.entries.map((e) {
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 20),
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          blurRadius: 10,
+                          color: Colors.black.withOpacity(0.05),
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          e.key.toUpperCase(),
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 12),
+                        buildChart(e.key, e.value),
+                      ],
+                    ),
+                  );
+                }),
+
+                // ==================================
+                //           TABLE SECTION
+                // ==================================
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        blurRadius: 10,
+                        color: Colors.black.withOpacity(0.05),
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Data Table",
+                        style:
+                            TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 16),
+                      buildTable(),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 12),
-                buildTable(),
               ],
             ),
     );

@@ -16,7 +16,16 @@ class _DevicePageState extends State<DevicePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Control Devices')),
+      backgroundColor: const Color(0xFFE8FFF4), // hijau sangat muda (background)
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: const Text(
+          'Control Device',
+          style: TextStyle(color: Colors.black87),
+        ),
+        centerTitle: true,
+      ),
       body: StreamBuilder<DeviceModel>(
         stream: controller.getDeviceStream(),
         builder: (context, snapshot) {
@@ -28,25 +37,51 @@ class _DevicePageState extends State<DevicePage> {
 
           return Padding(
             padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                buildSwitch(
-                  title: 'Pompa Asam',
-                  value: device.pumpAcid,
-                  onChanged: (val) => controller.updateDevice('pump_acid', val),
-                ),
-                buildSwitch(
-                  title: 'Pompa Nutrisi',
-                  value: device.pumpNutrient,
-                  onChanged: (val) =>
-                      controller.updateDevice('pump_nutrient', val),
-                ),
-                buildSwitch(
-                  title: 'Lampu',
-                  value: device.lamp,
-                  onChanged: (val) => controller.updateDevice('lamp', val),
-                ),
-              ],
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.8),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    blurRadius: 12,
+                    color: Colors.black.withOpacity(0.05),
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: const [
+                      Text(
+                        "Control Device",
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(width: 8),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // ====== ITEMS ======
+                  buildItem(
+                    title: "Pompa Asam",
+                    value: device.pumpAcid,
+                    onChanged: (v) => controller.updateDevice('pump_acid', v),
+                  ),
+                  buildItem(
+                    title: "Pompa Nutrisi",
+                    value: device.pumpNutrient,
+                    onChanged: (v) => controller.updateDevice('pump_nutrient', v),
+                  ),
+                  buildItem(
+                    title: "Lampu",
+                    value: device.lamp,
+                    onChanged: (v) => controller.updateDevice('lamp', v),
+                  ),
+                ],
+              ),
             ),
           );
         },
@@ -54,20 +89,32 @@ class _DevicePageState extends State<DevicePage> {
     );
   }
 
-  Widget buildSwitch({
+  // ===============================
+  //      CUSTOM ITEM PILL
+  // ===============================
+  Widget buildItem({
     required String title,
     required bool value,
     required Function(bool) onChanged,
   }) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      child: ListTile(
-        title: Text(title),
-        trailing: Switch(
-          value: value,
-          onChanged: onChanged,
-          activeColor: Colors.green,
-        ),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE8FFF4),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(title, style: const TextStyle(fontSize: 16)),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            activeColor: Colors.white,
+            activeTrackColor: Colors.teal.shade300,
+          ),
+        ],
       ),
     );
   }
