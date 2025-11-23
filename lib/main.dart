@@ -29,9 +29,12 @@ class MyApp extends StatelessWidget {
       routes: {
         "/login": (context) => const LoginPage(),
         "/dashboard": (context) => const BottomNavWrapper(initialIndex: 0),
-        "/config": (context) => const BottomNavWrapper(initialIndex: 1),
-        "/history": (context) => const BottomNavWrapper(initialIndex: 2),
-        "/device": (context) => const BottomNavWrapper(initialIndex: 3),
+        "/alert": (context) => const BottomNavWrapper(initialIndex: 1),
+        "/config": (context) => const BottomNavWrapper(initialIndex: 2),
+        "/history": (context) => const BottomNavWrapper(initialIndex: 3),
+        "/device": (context) => const BottomNavWrapper(initialIndex: 4),
+        "/user": (context) => const BottomNavWrapper(initialIndex: 5),
+        "/information": (context) => const BottomNavWrapper(initialIndex: 6),
       },
     );
   }

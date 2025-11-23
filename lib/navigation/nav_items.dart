@@ -3,6 +3,9 @@ import '../pages/dashboard_page.dart';
 import '../pages/config_page.dart';
 import '../pages/history_page.dart';
 import '../pages/device_page.dart';
+import '../pages/alert_page.dart';
+import '../pages/user_page.dart';
+import '../pages/information_page.dart';
 
 class NavItem {
   final IconData icon;
@@ -14,7 +17,10 @@ class NavItem {
 
 final List<NavItem> navItems = [
   NavItem(icon: Icons.dashboard, label: "Dashboard", page: DashboardPage()),
+  NavItem(icon: Icons.warning, label: "Alert", page: AlertPage()),
   NavItem(icon: Icons.settings, label: "Config", page: ConfigPage()),
   NavItem(icon: Icons.history, label: "History", page: HistoryPage()),
   NavItem(icon: Icons.devices, label: "Device", page: DevicePage()),
+  NavItem(icon: Icons.person, label: "User", page: UserPage()),
+  NavItem(icon: Icons.info, label: "Information", page: InformationPage()),
 ];
