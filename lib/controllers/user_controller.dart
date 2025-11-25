@@ -5,43 +5,40 @@ class UserController {
   final FirebaseRefs refs;
   UserController(this.refs);
 
-  // =====================
-  // GET LIST USER
-  // =====================
-  Future<List<User>> getUsers() async {
-    // Firebase Auth tidak menyediakan list all user di client,
-    // biasanya ini harus via Cloud Functions / Admin SDK.
-    // Untuk contoh ini, kita simulasikan:
-    return [refs.auth.currentUser!]; // hanya current user
+  FirebaseAuth get auth => refs.auth;
+
+  // ----------------------------------------------------
+  // GET CURRENT USER
+  // ----------------------------------------------------
+  User? getCurrentUser() {
+    return auth.currentUser;
   }
 
-  // =====================
-  // TAMBAH USER (email + password)
-  // =====================
+  // ----------------------------------------------------
+  // BUAT USER BARU (login baru)
+  // ----------------------------------------------------
   Future<void> createUser(String email, String password) async {
-    await refs.auth.createUserWithEmailAndPassword(
+    await auth.createUserWithEmailAndPassword(
       email: email,
       password: password,
     );
   }
 
-  // =====================
-  // GANTI PASSWORD
-  // =====================
+  // ----------------------------------------------------
+  // GANTI PASSWORD USER YANG SEDANG LOGIN
+  // ----------------------------------------------------
   Future<void> updatePassword(String newPassword) async {
-    final user = refs.auth.currentUser;
-    if (user != null) {
-      await user.updatePassword(newPassword);
-    }
+    final user = auth.currentUser;
+    if (user == null) throw Exception("Tidak ada user yang login");
+    await user.updatePassword(newPassword);
   }
 
-  // =====================
-  // DELETE USER
-  // =====================
-  Future<void> deleteUser() async {
-    final user = refs.auth.currentUser;
-    if (user != null) {
-      await user.delete();
-    }
+  // ----------------------------------------------------
+  // HAPUS USER YANG SEDANG LOGIN (OPSIONAL)
+  // ----------------------------------------------------
+  Future<void> deleteCurrentUser() async {
+    final user = auth.currentUser;
+    if (user == null) throw Exception("Tidak ada user yang login");
+    await user.delete();
   }
 }
