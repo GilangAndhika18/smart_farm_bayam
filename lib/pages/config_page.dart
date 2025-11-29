@@ -62,51 +62,100 @@ class _ConfigPageState extends State<ConfigPage> {
           ),
           content: const Text(
             "Apakah Anda yakin ingin menyimpan perubahan konfigurasi?",
-            style: TextStyle(fontSize: 15,),
+            style: TextStyle(fontSize: 15),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text(
-                "Batal",
-                style: TextStyle(color: Colors.grey),
-              ),
+              child: const Text("Batal", style: TextStyle(color: Colors.grey)),
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.teal,
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
               onPressed: () => Navigator.pop(context, true),
-              child: const Text("Simpan", style: TextStyle(color: Colors.white),),
+              child: const Text(
+                "Simpan",
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ],
         );
       },
     );
 
-    // User menekan "Batal"
     if (confirm != true) return;
 
-    // === LANJUT PROSES SIMPAN ===
-    final config = ConfigModel(
-      phMin: double.tryParse(fields['ph_min']!.text) ?? 0,
-      phMax: double.tryParse(fields['ph_max']!.text) ?? 0,
-      tempMin: double.tryParse(fields['temp_min_c']!.text) ?? 0,
-      tempMax: double.tryParse(fields['temp_max_c']!.text) ?? 0,
-      tdsMin: double.tryParse(fields['tds_min_ppm']!.text) ?? 0,
-      tdsMax: double.tryParse(fields['tds_max_ppm']!.text) ?? 0,
-      ecMin: double.tryParse(fields['ec_min_ms_cm']!.text) ?? 0,
-      ecMax: double.tryParse(fields['ec_max_ms_cm']!.text) ?? 0,
-      isManual: isManual,
-      lightOnHour: 6,
-      lightOffHour: 18,
-    );
+    try {
+      // === VALIDASI & BIKIN CONFIG DI DALAM TRY ===
+      final config = ConfigModel(
+        phMin: parseOrThrow("pH Minimum", fields['ph_min']!.text),
+        phMax: parseOrThrow("pH Maximum", fields['ph_max']!.text),
+        tempMin: parseOrThrow(
+          "Temperature Minimum",
+          fields['temp_min_c']!.text,
+        ),
+        tempMax: parseOrThrow(
+          "Temperature Maximum",
+          fields['temp_max_c']!.text,
+        ),
+        tdsMin: parseOrThrow("TDS Minimum", fields['tds_min_ppm']!.text),
+        tdsMax: parseOrThrow("TDS Maximum", fields['tds_max_ppm']!.text),
+        ecMin: parseOrThrow("EC Minimum", fields['ec_min_ms_cm']!.text),
+        ecMax: parseOrThrow("EC Maximum", fields['ec_max_ms_cm']!.text),
+        isManual: isManual,
+        lightOnHour: 6,
+        lightOffHour: 18,
+      );
 
-    await controller.saveConfig(config);
+      await controller.saveConfig(config);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Konfigurasi berhasil disimpan')),
-    );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.teal.shade400,
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          content: Row(
+            children: const [
+              Icon(Icons.check_circle, color: Colors.white),
+              SizedBox(width: 12),
+              Text(
+                'Konfigurasi berhasil disimpan',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Input Tidak Valid"),
+          content: Text(e.toString()),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("OK"),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  double parseOrThrow(String label, String text) {
+    final val = double.tryParse(text);
+    if (val == null) {
+      throw Exception("$label harus berupa angka");
+    }
+    return val;
   }
 
   @override
@@ -148,23 +197,35 @@ class _ConfigPageState extends State<ConfigPage> {
 
                 const Text(
                   "Edit Batas Sensor",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
 
                 buildSensorSection("pH", fields['ph_min']!, fields['ph_max']!),
-                buildSensorSection("Temperature", fields['temp_min_c']!, fields['temp_max_c']!),
-                buildSensorSection("TDS", fields['tds_min_ppm']!, fields['tds_max_ppm']!),
-                buildSensorSection("EC", fields['ec_min_ms_cm']!, fields['ec_max_ms_cm']!),
+                buildSensorSection(
+                  "Temperature",
+                  fields['temp_min_c']!,
+                  fields['temp_max_c']!,
+                ),
+                buildSensorSection(
+                  "TDS",
+                  fields['tds_min_ppm']!,
+                  fields['tds_max_ppm']!,
+                ),
+                buildSensorSection(
+                  "EC",
+                  fields['ec_min_ms_cm']!,
+                  fields['ec_max_ms_cm']!,
+                ),
 
                 const SizedBox(height: 20),
 
                 // Switch IS MANUAL
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFE8FFF4),
                     borderRadius: BorderRadius.circular(20),
@@ -219,7 +280,10 @@ class _ConfigPageState extends State<ConfigPage> {
   //     UI FOR MIN / MAX INPUT
   // ===============================
   Widget buildSensorSection(
-    String title, TextEditingController minCtrl, TextEditingController maxCtrl) {
+    String title,
+    TextEditingController minCtrl,
+    TextEditingController maxCtrl,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -263,7 +327,6 @@ class _ConfigPageState extends State<ConfigPage> {
     );
   }
 
-
   Widget buildPillInput(String hint, TextEditingController controller) {
     return Container(
       decoration: BoxDecoration(
@@ -273,10 +336,7 @@ class _ConfigPageState extends State<ConfigPage> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: TextField(
         controller: controller,
-        decoration: InputDecoration(
-          hintText: hint,
-          border: InputBorder.none,
-        ),
+        decoration: InputDecoration(hintText: hint, border: InputBorder.none),
         keyboardType: TextInputType.number,
       ),
     );

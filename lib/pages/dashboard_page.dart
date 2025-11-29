@@ -33,7 +33,6 @@ class _DashboardPageState extends State<DashboardPage> {
       }
 
       final latest = await controller.getCurrent();
-      print("LATEST CURRENT READING: $latest");
 
       setState(() {
         data = latest ?? {};
@@ -41,26 +40,17 @@ class _DashboardPageState extends State<DashboardPage> {
     });
   }
 
-  void loadThresholdMap() {
-    thresholds = {
-      "ph": {"min": 0, "max": controller.thresholds.ph},
-      "tds_ppm": {"min": 0, "max": controller.thresholds.tdsPpm},
-      "ec_ms_cm": {"min": 0, "max": controller.thresholds.ecMsCm},
-      "temp_c": {"min": 0, "max": controller.thresholds.tempC},
-    };
-  }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: controller.loadThresholds(),
+      future: controller.loadConfig(),
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return const Center(child: CircularProgressIndicator());
         }
 
         // UPDATE: masukkan threshold ke map lokal
-        loadThresholdMap();
+        thresholds = controller.thresholds;
 
         return data == null
             ? const Center(child: CircularProgressIndicator())

@@ -4,6 +4,7 @@ import 'package:smart_farm_bayam/pages/login_page.dart';
 import 'package:smart_farm_bayam/app_globals.dart';
 import 'firebase_options.dart';
 import 'navigation/bottom_nav.dart';
+import 'pages/auth_gate.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,9 +25,10 @@ class MyApp extends StatelessWidget {
       title: 'Smart Farm App',
       theme: ThemeData(primarySwatch: Colors.green),
 
-      initialRoute: "/login",
+      initialRoute: "/",
 
       routes: {
+        "/": (context) => const AuthGate(),
         "/login": (context) => const LoginPage(),
         "/dashboard": (context) => const BottomNavWrapper(initialIndex: 0),
         "/alert": (context) => const BottomNavWrapper(initialIndex: 1),

@@ -1,10 +1,12 @@
 import '../models/history_threshold_model.dart';
 import '../helper/manager.dart';
+import '../models/config_model.dart';
 
 class DashboardController {
-  late HistoryThreshold thresholds;
+  late HistoryThreshold historyThreshold;
   final FirebaseRefs refs;
-
+  ConfigModel? config;
+  Map<String, Map<String, double>> thresholds = {};
   DashboardController(this.refs);
 
   // Ambil data terakhir untuk ditampilkan
@@ -25,10 +27,19 @@ class DashboardController {
   Future<Map<String, dynamic>> getCurrent() async {
     final snap = await refs.currentReadingRef.get();
     if (!snap.exists) return {};
-    return Map<String, dynamic>.from(snap.value as Map);
-  }
 
-  
+    final raw = Map<String, dynamic>.from(snap.value as Map);
+
+    final result = raw.map((key, value) {
+      if (value is num) {
+        // bulatkan float ke 2 angka
+        return MapEntry(key, double.parse(value.toStringAsFixed(2)));
+      }
+      return MapEntry(key, value);
+    });
+
+    return result;
+  }
 
   Future<void> updateCurrentReading(Map<String, dynamic>? newData) async {
     if (newData == null || newData.isEmpty) return;
@@ -47,7 +58,6 @@ class DashboardController {
       return;
     }
 
-    // Kalau sudah ada, bisa lanjut logika update
     final current = Map<String, dynamic>.from(snap.value as Map);
 
     // update hanya jika perlu
@@ -59,19 +69,21 @@ class DashboardController {
     });
   }
 
+
+
   // Load threshold
   Future<void> loadThresholds() async {
     final snapshot = await refs.historyThresholdRef.get();
 
     if (!snapshot.exists) {
-      thresholds = HistoryThreshold(
+      historyThreshold = HistoryThreshold(
         ph: 1.0,
         tdsPpm: 50.0,
         ecMsCm: 0.5,
         tempC: 5.0,
       );
     } else {
-      thresholds = HistoryThreshold.fromMap(
+      historyThreshold = HistoryThreshold.fromMap(
         Map<String, dynamic>.from(snapshot.value as Map),
       );
     }
@@ -85,7 +97,7 @@ class DashboardController {
         rawMap.keys
             .map((e) => int.tryParse(e.toString()))
             .where((v) => v != null)
-            .map((v) => v!) // aman dipaksa karena sudah difilter
+            .map((v) => v!)
             .toList()
           ..sort();
 
@@ -100,13 +112,13 @@ class DashboardController {
   double getThreshold(String key) {
     switch (key) {
       case 'ph':
-        return thresholds.ph;
+        return historyThreshold.ph;
       case 'tds_ppm':
-        return thresholds.tdsPpm;
+        return historyThreshold.tdsPpm;
       case 'ec_ms_cm':
-        return thresholds.ecMsCm;
+        return historyThreshold.ecMsCm;
       case 'temp_c':
-        return thresholds.tempC;
+        return historyThreshold.tempC;
     }
     return 0;
   }
@@ -173,7 +185,7 @@ class DashboardController {
     if (newData.isEmpty) return;
 
     final current = await getCurrent();
-    bool changed = false;
+    final changedKeys = <String>[];
 
     for (var key in ['ph', 'tds_ppm', 'ec_ms_cm', 'temp_c']) {
       final oldVal = current[key];
@@ -182,19 +194,49 @@ class DashboardController {
       if (oldVal == null || newVal == null) continue;
 
       if ((newVal - oldVal).abs() >= getThreshold(key)) {
-        changed = true;
+        changedKeys.add(key);
       }
     }
 
-    if (!changed) return;
+    if (changedKeys.isEmpty) return;
 
     final unixMs = DateTime.now().millisecondsSinceEpoch.toString();
 
-    for (var key in ['ph', 'tds_ppm', 'ec_ms_cm', 'temp_c']) {
-      final value = newData[key];
-      if (value == null) continue;
-
-      await refs.historyRef.child(key).child(unixMs).set(value);
+    for (var key in changedKeys) {
+      await refs.historyRef.child(key).child(unixMs).set(newData[key]);
     }
+  }
+  // buat peringatan
+  Future<void> loadConfig() async {
+    final snapshot = await refs.configThresholdRef.get();
+    if (!snapshot.exists) {
+      config = null;
+      return;
+    }
+
+    final data = Map<String, dynamic>.from(snapshot.value as Map);
+    config = ConfigModel.fromMap(data);
+
+    _generateThresholdMap();
+  }
+
+  // bikin threshold map
+  void _generateThresholdMap() {
+    if (config == null) {
+      thresholds = {
+        "ph": {"min": 0, "max": 0},
+        "tds_ppm": {"min": 0, "max": 0},
+        "ec_ms_cm": {"min": 0, "max": 0},
+        "temp_c": {"min": 0, "max": 0},
+      };
+      return;
+    }
+
+    thresholds = {
+      "ph": {"min": config!.phMin, "max": config!.phMax},
+      "tds_ppm": {"min": config!.tdsMin, "max": config!.tdsMax},
+      "ec_ms_cm": {"min": config!.ecMin, "max": config!.ecMax},
+      "temp_c": {"min": config!.tempMin, "max": config!.tempMax},
+    };
   }
 }

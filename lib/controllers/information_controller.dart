@@ -9,7 +9,9 @@ class InformationController {
   Stream<List<InformationModel>> getInformationStream() {
     return refs.informationRef.onValue.map((event) {
       final data = event.snapshot.value as Map<dynamic, dynamic>? ?? {};
-      return data.entries.map((e) => InformationModel.fromMap(e.value, e.key)).toList();
+      return data.entries
+          .map((e) => InformationModel.fromMap(e.value, e.key))
+          .toList();
     });
   }
 
@@ -24,22 +26,82 @@ class InformationController {
     if (index < 5) return; // 5 pertama tidak bisa dihapus
     await refs.informationRef.child(id).remove();
   }
-  
-  Future<void> createInitialInfos() async {
-  final snapshot = await refs.informationRef.get();
-  if (!snapshot.exists) {
-    final initialInfos = [
-      {'title': 'Selamat Datang', 'content': 'Informasi awal aplikasi'},
-      {'title': 'Tips Tanaman', 'content': 'Perawatan tanaman bayam'},
-      {'title': 'Alarm Sensor', 'content': 'Notifikasi sensor penting'},
-      {'title': 'Kontrol Pompa', 'content': 'Cara mengontrol pompa'},
-      {'title': 'Lampu & Nutrisi', 'content': 'Pengaturan lampu dan nutrisi'},
-    ];
 
-    for (var info in initialInfos) {
-      await refs.informationRef.push().set(info);
+  Future<void> createInitialInfos() async {
+    final snapshot = await refs.informationRef.get();
+    if (!snapshot.exists) {
+      final initialInfos = [
+        {
+          'title': 'Selamat Datang',
+          'content': '''
+## Selamat Datang
+
+Aplikasi ini membantu memantau tanaman bayam hidroponik Anda.
+
+- Lihat data sensor
+- Pantau kondisi tanaman
+- Kendalikan perangkat secara otomatis
+''',
+        },
+
+        {
+          'title': 'Tips Tanaman',
+          'content': '''
+## Tips Perawatan Bayam
+
+Berikut beberapa tips dasar:
+
+1. Cahaya cukup 6–8 jam.
+2. Nutrisi stabil.
+3. Air tidak boleh kotor.
+''',
+        },
+
+        {
+          'title': 'Alarm Sensor',
+          'content': '''
+## Alarm Sensor
+
+Aplikasi akan memberi notifikasi jika:
+
+- pH terlalu tinggi atau rendah
+- EC abnormal
+- Suhu naik drastis
+''',
+        },
+
+        {
+          'title': 'Kontrol Pompa',
+          'content': '''
+## Kontrol Pompa
+
+Anda bisa:
+
+- Menyalakan pompa nutrisi
+- Menjadwalkan waktu otomatis
+- Mengecek status pompa
+''',
+        },
+
+        {
+          'title': 'Lampu & Nutrisi',
+          'content': '''
+## Lampu dan Nutrisi
+
+Panduan singkat:
+
+| Item      | Aturan                   |
+|-----------|--------------------------|
+| Lampu     | 6–12 jam per hari        |
+| Nutrisi   | Ganti setiap 7 hari      |
+| Intensitas| Sesuaikan kebutuhan tanaman |
+''',
+        },
+      ];
+
+      for (var info in initialInfos) {
+        await refs.informationRef.push().set(info);
+      }
     }
   }
-}
-
 }
