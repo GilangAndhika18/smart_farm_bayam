@@ -11,22 +11,14 @@ class UserPage extends StatefulWidget {
 
 class _UserPageState extends State<UserPage> {
   final UserController controller = UserController(AppGlobals.refs);
-
   final TextEditingController changePassword = TextEditingController();
+
+  bool _isPasswordVisible = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFE8FFF4),
-      // appBar: AppBar(
-      //   elevation: 0,
-      //   backgroundColor: const Color(0xFFE8FFF4),
-      //   foregroundColor: Colors.black87,
-      //   title: const Text(
-      //     "User",
-      //     style: TextStyle(fontWeight: FontWeight.bold),
-      //   ),
-      // ),
 
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -84,13 +76,32 @@ class _UserPageState extends State<UserPage> {
 
               const SizedBox(height: 10),
 
-              TextField(
-                controller: changePassword,
-                decoration: const InputDecoration(
-                  labelText: "Password baru",
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
+              // 🔥 TextField dengan fungsi show/hide password (Bekerja 100%)
+              StatefulBuilder(
+                builder: (context, setStateSB) {
+                  return TextField(
+                    controller: changePassword,
+                    obscureText: !_isPasswordVisible,
+                    decoration: InputDecoration(
+                      labelText: "Password baru",
+                      border: const OutlineInputBorder(),
+
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isPasswordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: Colors.grey,
+                        ),
+                        onPressed: () {
+                          setStateSB(() {
+                            _isPasswordVisible = !_isPasswordVisible;
+                          });
+                        },
+                      ),
+                    ),
+                  );
+                },
               ),
 
               const SizedBox(height: 12),
@@ -105,24 +116,119 @@ class _UserPageState extends State<UserPage> {
                     ),
                   ),
                   onPressed: () async {
-                    try {
-                      await controller.updatePassword(changePassword.text);
+                    if (changePassword.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                            content: Text("Password berhasil diubah")),
+                            content: Text("Password tidak boleh kosong")),
                       );
-                      changePassword.clear();
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Error: $e")),
-                      );
+                      return;
+                    }
+
+                    // 🔥 Dialog Konfirmasi Update Password
+                    final bool? confirmUpdate = await showDialog(
+                      context: context,
+                      builder: (context) => Dialog(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "Konfirmasi",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+
+                              const SizedBox(height: 12),
+
+                              const Text(
+                                "Apakah Anda yakin ingin memperbarui password Anda?",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.black87,
+                                  height: 1.3,
+                                ),
+                              ),
+
+                              const SizedBox(height: 20),
+
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, false),
+                                    child: const Text(
+                                      "Batal",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+
+                                  const SizedBox(width: 8),
+
+                                  ElevatedButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, true),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.teal,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(30),
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 20,
+                                        vertical: 10,
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      "Update",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+
+                    // Jika user setuju update
+                    if (confirmUpdate == true) {
+                      try {
+                        await controller.updatePassword(changePassword.text);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text("Password berhasil diperbarui")),
+                        );
+                        changePassword.clear();
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Error: $e")),
+                        );
+                      }
                     }
                   },
-                  child: const Text("Update Password", style: TextStyle(color: Colors.white),)
+                  child: const Text(
+                    "Update Password",
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
 
-              const Spacer(), // >>>> MENARUH BACK DI PALING BAWAH <<<<
+              const Spacer(),
 
               GestureDetector(
                 onTap: () => Navigator.pop(context),
