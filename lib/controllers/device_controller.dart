@@ -8,7 +8,7 @@ class DeviceController {
   Stream<DeviceModel> getDeviceStream() {
     return refs.deviceRef.onValue.map((event) {
       if (event.snapshot.value == null) {
-        return DeviceModel(pumpAcid: false, pumpNutrient: false, lamp: false);
+        return DeviceModel(pumpAcid: false, pumpNutrient: false);
       }
       final map = Map<String, dynamic>.from(event.snapshot.value as Map);
       return DeviceModel.fromMap(map);

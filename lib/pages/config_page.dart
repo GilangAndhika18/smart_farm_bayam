@@ -102,8 +102,6 @@ class _ConfigPageState extends State<ConfigPage> {
         ecMin: parseOrThrow("EC Minimum", fields['ec_min_ms_cm']!.text),
         ecMax: parseOrThrow("EC Maximum", fields['ec_max_ms_cm']!.text),
         isManual: isManual,
-        lightOnHour: 6,
-        lightOffHour: 18,
       );
 
       await controller.saveConfig(config);

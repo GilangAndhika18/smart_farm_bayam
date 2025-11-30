@@ -73,13 +73,16 @@ class _BottomNavWrapperState extends State<BottomNavWrapper> {
     );
   }
 
-
   Widget _menuItem(IconData icon, String label) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Icon(icon, color: Colors.green, size: 26),
         SizedBox(width: 12),
-        Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+        Text(
+          label,
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
       ],
     );
   }
@@ -89,9 +92,7 @@ class _BottomNavWrapperState extends State<BottomNavWrapper> {
     return Scaffold(
       body: navItems[_currentIndex].page,
       bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.teal.shade900,
-        ),
+        decoration: BoxDecoration(color: Colors.teal.shade900),
         padding: EdgeInsets.only(top: 6),
         child: BottomNavigationBar(
           backgroundColor: Colors.transparent,
@@ -109,10 +110,10 @@ class _BottomNavWrapperState extends State<BottomNavWrapper> {
             setState(() => _currentIndex = idx);
           },
           items: navItems
-              .map((e) => BottomNavigationBarItem(
-                    icon: Icon(e.icon),
-                    label: e.label,
-                  ))
+              .map(
+                (e) =>
+                    BottomNavigationBarItem(icon: Icon(e.icon), label: e.label),
+              )
               .toList(),
         ),
       ),

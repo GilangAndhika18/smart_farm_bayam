@@ -32,69 +32,81 @@ class InformationController {
     if (!snapshot.exists) {
       final initialInfos = [
         {
-          'title': 'Selamat Datang',
+          'title': 'Cara Kerja Sistem',
           'content': '''
 ## Selamat Datang
 
-Aplikasi ini membantu memantau tanaman bayam hidroponik Anda.
+Aplikasi ini bekerja berdasarkan **Konfigurasi Anda**.
 
-- Lihat data sensor
-- Pantau kondisi tanaman
-- Kendalikan perangkat secara otomatis
+1. Masuk ke menu **Config**.
+2. Masukkan nilai **Min** dan **Max** yang Anda inginkan.
+3. Sistem akan otomatis bekerja menjaga kondisi tanaman tetap berada di antara angka tersebut.
+
+*Gunakan data rekomendasi di halaman sebelah sebagai acuan setting Anda.*
 ''',
         },
 
         {
-          'title': 'Tips Tanaman',
+          'title': 'Rekomendasi Setting Bayam',
           'content': '''
-## Tips Perawatan Bayam
+## Contekkan Setting Config
 
-Berikut beberapa tips dasar:
+Agar bayam tumbuh optimal seperti di jurnal penelitian, Anda bisa memasukkan angka ini ke menu **Config**:
 
-1. Cahaya cukup 6–8 jam.
-2. Nutrisi stabil.
-3. Air tidak boleh kotor.
+| Parameter | Set Min | Set Max |
+|-----------|---------|---------|
+| **pH Air** | 5.5     | 6.5     |
+| **TDS (PPM)** | 1200    | 1600    |
+| **EC (mS/cm)**| 1.2     | 2.3     |
+| **Suhu Air** | 20°C    | 32°C    |
+
+[cite_start]*Data ini berdasarkan hasil panen optimal tanaman bayam dengan tinggi rata-rata 28 cm.* [cite: 24, 569, 572]
 ''',
         },
 
         {
-          'title': 'Alarm Sensor',
+          'title': 'Logika Alarm',
           'content': '''
-## Alarm Sensor
+## Kapan Alarm Berbunyi?
 
-Aplikasi akan memberi notifikasi jika:
+Notifikasi peringatan akan muncul di HP Anda jika sensor membaca nilai di luar batas yang **telah Anda tentukan sendiri**.
 
-- pH terlalu tinggi atau rendah
-- EC abnormal
-- Suhu naik drastis
+* **Peringatan TINGGI:** Jika nilai sensor > Batas Max Config Anda.
+* **Peringatan RENDAH:** Jika nilai sensor < Batas Min Config Anda.
+
+*Pastikan Anda mengisi batas aman yang sesuai agar tidak terlalu sering mendapat notifikasi palsu.*
 ''',
         },
 
         {
-          'title': 'Kontrol Pompa',
+          'title': 'Otomatisasi Pompa',
           'content': '''
-## Kontrol Pompa
+## Kapan Pompa Menyala?
 
-Anda bisa:
+Pompa akan bekerja otomatis mengejar target **Nilai Config** Anda:
 
-- Menyalakan pompa nutrisi
-- Menjadwalkan waktu otomatis
-- Mengecek status pompa
+### 1. Pompa Nutrisi
+* **Nyala (ON):** Saat nutrisi turun **di bawah Batas Min** yang Anda atur.
+* **Mati (OFF):** Saat nutrisi sudah naik kembali mencapai target.
+
+### 2. Pompa pH (Asam)
+* **Nyala (ON):** Saat pH naik **melebihi Batas Max** yang Anda atur (terlalu basa).
+* **Mati (OFF):** Saat pH sudah turun kembali ke range aman.
+
+[cite_start]*Sistem bergantung sepenuhnya pada angka yang Anda masukkan.* [cite: 23, 302, 306]
 ''',
         },
 
         {
-          'title': 'Lampu & Nutrisi',
+          'title': 'Tips Perawatan',
           'content': '''
-## Lampu dan Nutrisi
+## Tips Tambahan
 
-Panduan singkat:
+Selain setting otomatis, perhatikan hal manual ini:
 
-| Item      | Aturan                   |
-|-----------|--------------------------|
-| Lampu     | 6–12 jam per hari        |
-| Nutrisi   | Ganti setiap 7 hari      |
-| Intensitas| Sesuaikan kebutuhan tanaman |
+1.  **Suhu Air:** Jaga di range **20-30°C**. [cite_start]Jika Config Max suhu terlampaui, tambahkan es batu atau aerator karena suhu panas membuat pH tidak stabil. [cite: 577]
+2.  **Fase Bibit:** Gunakan setting TDS rendah (sekitar **600-800 ppm**) di Config agar akar tidak busuk. [cite_start]Naikkan setting ke **1200+ ppm** saat daun sudah lebat. [cite: 571]
+3.  **Kuras Tandon:** Ganti air total jika lumut sudah banyak, meskipun angka sensor masih bagus.
 ''',
         },
       ];

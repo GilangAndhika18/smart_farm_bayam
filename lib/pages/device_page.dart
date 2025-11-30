@@ -65,12 +65,7 @@ class _DevicePageState extends State<DevicePage> {
                     title: "Pompa Nutrisi",
                     value: device.pumpNutrient,
                     onChanged: (v) => controller.updateDevice('pump_nutrient', v),
-                  ),
-                  buildItem(
-                    title: "Lampu",
-                    value: device.lamp,
-                    onChanged: (v) => controller.updateDevice('lamp', v),
-                  ),
+                  )
                 ],
               ),
             ),

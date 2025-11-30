@@ -8,8 +8,6 @@ class ConfigModel {
   double tempMin;
   double tempMax;
   bool isManual;
-  int lightOnHour;
-  int lightOffHour;
 
   ConfigModel({
     required this.phMin,
@@ -20,9 +18,7 @@ class ConfigModel {
     required this.ecMax,
     required this.tempMin,
     required this.tempMax,
-    required this.isManual,
-    required this.lightOnHour,
-    required this.lightOffHour,
+    required this.isManual
   });
 
   factory ConfigModel.fromMap(Map<dynamic, dynamic> map) {
@@ -36,8 +32,6 @@ class ConfigModel {
       tempMin: (map['temp_min_c'] ?? 0).toDouble(),
       tempMax: (map['temp_max_c'] ?? 0).toDouble(),
       isManual: map['is_manual'] ?? true,
-      lightOnHour: map['light_on_hour'] ?? 6,
-      lightOffHour: map['light_off_hour'] ?? 18,
     );
   }
 
@@ -51,9 +45,7 @@ class ConfigModel {
       'ec_max_ms_cm': ecMax,
       'temp_min_c': tempMin,
       'temp_max_c': tempMax,
-      'is_manual': isManual,
-      'light_on_hour': lightOnHour,
-      'light_off_hour': lightOffHour,
+      'is_manual': isManual
     };
   }
 }

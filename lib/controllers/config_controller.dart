@@ -78,13 +78,5 @@ class ConfigController {
         "Temperature Minimum tidak boleh lebih besar dari Temperature Maximum",
       );
     }
-
-    // Validasi jam lampu
-    if (c.lightOnHour < 0 || c.lightOnHour > 23) {
-      throw Exception("Jam hidup lampu harus 0–23");
-    }
-    if (c.lightOffHour < 0 || c.lightOffHour > 23) {
-      throw Exception("Jam mati lampu harus 0–23");
-    }
   }
 }
