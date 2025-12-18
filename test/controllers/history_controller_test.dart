@@ -15,17 +15,13 @@ void main() {
       currentReadingRef: MockDatabaseReference(initialData: {}),
       configThresholdRef: MockDatabaseReference(initialData: {}),
       historyRef: MockDatabaseReference(initialData: history),
-      historyThresholdRef:
-          MockDatabaseReference(initialData: historyThreshold),
+      historyThresholdRef: MockDatabaseReference(initialData: historyThreshold),
     );
   }
 
   group('HistoryController', () {
     test('loadThresholds returns data when exists', () async {
-      mockRefs = createMockRefs(historyThreshold: {
-        'ph': 1.0,
-        'tds_ppm': 50.0,
-      });
+      mockRefs = createMockRefs(historyThreshold: {'ph': 1.0, 'tds_ppm': 50.0});
       controller = HistoryController(mockRefs);
 
       final result = await controller.loadThresholds();
@@ -47,10 +43,7 @@ void main() {
       mockRefs = createMockRefs();
       controller = HistoryController(mockRefs);
 
-      await controller.saveThresholds({
-        'ph': 2.5,
-        'temp_c': 10.0,
-      });
+      await controller.saveThresholds({'ph': 2.5, 'temp_c': 10.0});
 
       final snap = await mockRefs.historyThresholdRef.get();
       final saved = snap.value as Map;
@@ -60,10 +53,12 @@ void main() {
     });
 
     test('loadHistoryData aggregates sensor data', () async {
-      mockRefs = createMockRefs(history: {
-        'ph': {'1000': 6.0},
-        'tds_ppm': {'2000': 500.0},
-      });
+      mockRefs = createMockRefs(
+        history: {
+          'ph': {'1000': 6.0},
+          'tds_ppm': {'2000': 500.0},
+        },
+      );
       controller = HistoryController(mockRefs);
 
       final result = await controller.loadHistoryData();
@@ -80,13 +75,15 @@ void main() {
       final tTarget = now.subtract(const Duration(hours: 1));
       final tFuture = now.add(const Duration(days: 5));
 
-      mockRefs = createMockRefs(history: {
-        'ph': {
-          '${tPast.millisecondsSinceEpoch}': 5.0,
-          '${tTarget.millisecondsSinceEpoch}': 7.0,
-          '${tFuture.millisecondsSinceEpoch}': 9.0,
-        }
-      });
+      mockRefs = createMockRefs(
+        history: {
+          'ph': {
+            '${tPast.millisecondsSinceEpoch}': 5.0,
+            '${tTarget.millisecondsSinceEpoch}': 7.0,
+            '${tFuture.millisecondsSinceEpoch}': 9.0,
+          },
+        },
+      );
       controller = HistoryController(mockRefs);
 
       final result = await controller.loadHistoryFiltered(
@@ -113,15 +110,20 @@ void main() {
     });
 
     test('deleteAllHistory clears history node', () async {
-      mockRefs = createMockRefs(history: {
-        'ph': {'123': 7.0},
-      });
+      mockRefs = createMockRefs(
+        history: {
+          'ph': {'123': 7.0},
+        },
+      );
       controller = HistoryController(mockRefs);
 
       await controller.deleteAllHistory();
 
       final snap = await mockRefs.historyRef.get();
-      expect(snap.value, anyOf(null, isEmpty));
+      expect(
+        snap.value,
+        predicate((v) => v == null || (v is Map && v.isEmpty)),
+      );
     });
   });
 }
