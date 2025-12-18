@@ -9,21 +9,37 @@ class InformationController {
   Stream<List<InformationModel>> getInformationStream() {
     return refs.informationRef.onValue.map((event) {
       final data = event.snapshot.value as Map<dynamic, dynamic>? ?? {};
-      return data.entries
+
+      final list = data.entries
           .map((e) => InformationModel.fromMap(e.value, e.key))
           .toList();
+
+      // 🔒 pinned (1–5)
+      final pinned = list.where((e) => e.pinned).toList()
+        ..sort((a, b) => a.order.compareTo(b.order));
+
+      // 🔄 normal
+      final normal = list.where((e) => !e.pinned).toList()
+        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+      return [...pinned, ...normal];
     });
   }
 
   // Tambah informasi
   Future<void> addInformation(String title, String content) async {
     final newRef = refs.informationRef.push();
-    await newRef.set({'title': title, 'content': content});
+    await newRef.set({
+      'title': title,
+      'content': content,
+      'pinned': false,
+      'created_at': DateTime.now().millisecondsSinceEpoch,
+    });
   }
 
   // Hapus informasi (tapi cek jika index > 4)
   Future<void> removeInformation(String id, int index) async {
-    if (index < 5) return; // 5 pertama tidak bisa dihapus
+    if (index < 6) return; // 5 pertama tidak bisa dihapus
     await refs.informationRef.child(id).remove();
   }
 
@@ -33,6 +49,8 @@ class InformationController {
       final initialInfos = [
         {
           'title': 'Cara Kerja Sistem',
+          'pinned': true,
+          'order': 1,
           'content': '''
 ## Selamat Datang
 
@@ -48,6 +66,8 @@ Aplikasi ini bekerja berdasarkan **Konfigurasi Anda**.
 
         {
           'title': 'Rekomendasi Setting Bayam',
+          'pinned': true,
+          'order': 2,
           'content': '''
 ## Contekkan Setting Config
 
@@ -66,6 +86,8 @@ Agar bayam tumbuh optimal seperti di jurnal penelitian, Anda bisa memasukkan ang
 
         {
           'title': 'Logika Alarm',
+          'pinned': true,
+          'order': 3,
           'content': '''
 ## Kapan Alarm Berbunyi?
 
@@ -80,6 +102,8 @@ Notifikasi peringatan akan muncul di HP Anda jika sensor membaca nilai di luar b
 
         {
           'title': 'Otomatisasi Pompa',
+          'pinned': true,
+          'order': 4,
           'content': '''
 ## Kapan Pompa Menyala?
 
@@ -99,6 +123,8 @@ Pompa akan bekerja otomatis mengejar target **Nilai Config** Anda:
 
         {
           'title': 'Tips Perawatan',
+          'pinned': true,
+          'order': 5,
           'content': '''
 ## Tips Tambahan
 
@@ -111,11 +137,10 @@ Selain setting otomatis, perhatikan hal manual ini:
         },
         {
           'title': 'Panduan & Perawatan Bayam',
+          'pinned': true,
+          'order': 6,
           'content': '''
 ## Panduan Aplikasi & Tips Tanam
-
-Selamat datang! Aplikasi ini dirancang untuk memudahkan Anda memantau kebun hidroponik. Berikut adalah panduan lengkap fitur dan contekan perawatan bayam.
-
 ---
 
 ### 1. Cara Menggunakan Menu Aplikasi
@@ -139,6 +164,9 @@ Selamat datang! Aplikasi ini dirancang untuk memudahkan Anda memantau kebun hidr
 
 * **📝 Information:**
     Tempat Anda membaca panduan ini atau menulis catatan harian (jurnal) perkembangan tanaman Anda.
+
+* **⚠️ Alert:**
+    Melihat daftar peringatan yang pernah muncul berdasarkan pembacaan sensor.
 
 * **👤 User:**
     Menu untuk mengganti kata sandi (Password) agar settingan alat Anda aman.

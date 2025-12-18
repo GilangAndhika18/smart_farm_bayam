@@ -64,7 +64,7 @@ class InformationDetailPage extends StatelessWidget {
 
                       const SizedBox(height: 20),
 
-                      if (index >= 5)
+                      if (index >= 6)
                       ElevatedButton.icon(
                         onPressed: () async {
                           final bool? confirmDelete = await showDialog(

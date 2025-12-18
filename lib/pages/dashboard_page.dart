@@ -309,7 +309,7 @@ class _DashboardPageState extends State<DashboardPage> {
     double tolerance;
     switch (key) {
       case "ph":
-        tolerance = 0.5; // pH 6.5-7.5 (Normal)
+        tolerance = 0.2; // pH 6.5-7.5 (Normal)
         break;
       case "temp_c":
         tolerance = 1; // Temp 20-30°C (Normal)
